@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Квесты: вы уверены, что хотите выйти?</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --dark-bg: #0a0a0a;
+            --darker-bg: #050505;
+            --text-light: #f0f0f0;
+            --accent-red: #8b0000;
+            --accent-gold: #d4af37;
+            --gray: #888;
+            --gray-dark: #333;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        h1, h2, h3, h4 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 700;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Fullscreen заголовок с центрированием лица */
+        .fullscreen-header {
+            height: 100vh;
+            width: 100%;
+            background-color: var(--darker-bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .fullscreen-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                /* Темный оверлей для лучшей читаемости текста */
+                linear-gradient(rgba(10, 10, 10, 0.75), rgba(5, 5, 5, 0.7)),
+                /* Ваше изображение с центрированием лица */
+                url('images/обложка.JPG') no-repeat;
+            
+            /* Адаптивная настройка позиции для центрирования лица */
+            background-position: 70% 50%;
+            
+            background-size: cover;
+            z-index: 1;
+            
+            /* Эффект виньетки для фокуса на центре */
+            box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.8);
+        }
+        
+        /* Затемнение по краям для лучшего фокуса на центре */
+        .fullscreen-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(
+                circle at 70% 50%,
+                transparent 30%,
+                rgba(0, 0, 0, 0.8) 70%
+            );
+            z-index: 2;
+        }
+        
+        .main-title {
+            font-size: 4.5rem;
+            letter-spacing: 3px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 3;
+            text-shadow: 0 0 20px rgba(0, 0, 0, 0.9), 0 0 15px rgba(139, 0, 0, 0.8);
+            animation: flicker 3s infinite alternate;
+        }
+        
+        .subtitle {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: var(--text-light);
+            position: relative;
+            z-index: 3;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 0 20px;
+            text-shadow: 0 0 15px rgba(0, 0, 0, 0.9);
+        }
+        
+        @keyframes flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+                text-shadow: 0 0 20px rgba(0, 0, 0, 0.9), 0 0 15px rgba(139, 0, 0, 0.8);
+            }
+            20%, 24%, 55% {
+                text-shadow: 0 0 10px rgba(0, 0, 0, 0.9), 0 0 5px rgba(139, 0, 0, 0.3);
+            }
+        }
+        
+        /* Стрелка вниз */
+        .scroll-down {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+            color: var(--accent-gold);
+            font-size: 2rem;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            40% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+        
+        /* Основное содержание */
+        .content {
+            padding: 80px 0;
+            position: relative;
+        }
+        
+        .content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(139, 0, 0, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 80% 70%, rgba(212, 175, 55, 0.05) 0%, transparent 20%);
+            z-index: -1;
+        }
+        
+        .section {
+            margin-bottom: 80px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s, transform 0.8s;
+        }
+        
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .section-title {
+            font-size: 2.8rem;
+            color: var(--accent-gold);
+            margin-bottom: 30px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100px;
+            height: 2px;
+            background-color: var(--accent-red);
+        }
+        
+        .intro-text {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            margin-bottom: 40px;
+            padding: 20px;
+            border-left: 3px solid var(--accent-red);
+            background-color: rgba(139, 0, 0, 0.05);
+        }
+        
+        .paragraph {
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+        
+        .highlight {
+            color: var(--accent-gold);
+            font-weight: 500;
+        }
+        
+        .inline-quote {
+            font-style: italic;
+            color: var(--accent-gold);
+            quotes: "«" "»" "„" "“";
+        }
+        
+        .inline-quote::before {
+            content: open-quote;
+        }
+        
+        .inline-quote::after {
+            content: close-quote;
+        }
+        
+        .company-list {
+            list-style-type: none;
+            margin: 30px 0;
+        }
+        
+        .company-list li {
+            margin-bottom: 20px;
+            padding-left: 70px;
+            position: relative;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .company-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background-color: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            background-size: 40px 40px;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        
+        /* Специфичные логотипы для каждой компании */
+        .company-list li:nth-child(1)::before {
+            background-image: url('images/логотип пятый угол.jpg');
+        }
+        
+        .company-list li:nth-child(2)::before {
+            background-image: url('images/логотип level up.jpg');
+        }
+        
+        .company-list li:nth-child(3)::before {
+            background-image: url('images/логотип горький квест.jpg');
+        }
+        
+        .company-name {
+            color: var(--accent-gold);
+            font-weight: 500;
+            font-size: 1.1rem;
+            margin-right: 5px;
+        }
+        
+        /* Стили для изображений */
+        .image-container {
+            margin: 40px 0;
+            position: relative;
+        }
+        
+        .main-image {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+        }
+        
+        .main-image:hover {
+            transform: scale(1.02);
+        }
+        
+        .image-caption {
+            text-align: center;
+            font-style: italic;
+            color: var(--gray);
+            margin-top: 15px;
+            font-size: 0.9rem;
+            padding: 0 10px;
+        }
+        
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .grid-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 6px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .grid-image:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .full-width-image {
+            width: 100vw;
+            position: relative;
+            left: 50%;
+            right: 50%;
+            margin-left: -50vw;
+            margin-right: -50vw;
+            margin: 50px 0;
+            max-height: 500px;
+            object-fit: cover;
+        }
+        
+        /* НОВЫЙ ДИЗАЙН ЦИТАТ */
+        
+        /* Блоки цитат без портретов */
+        .quote-block {
+            margin: 60px 0;
+            padding: 40px;
+            position: relative;
+            background: rgba(15, 15, 15, 0.7);
+            border-radius: 12px;
+            border-left: 4px solid var(--accent-gold);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            font-style: italic;
+            font-size: 1.3rem;
+            line-height: 1.8;
+            color: var(--text-light);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .quote-block:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+        }
+        
+        .quote-block::before {
+            content: '"';
+            font-size: 6rem;
+            color: var(--accent-gold);
+            position: absolute;
+            top: -25px;
+            left: 25px;
+            opacity: 0.15;
+            font-family: 'Cormorant Garamond', serif;
+            line-height: 1;
+        }
+        
+        .quote-author {
+            margin-top: 25px;
+            font-style: normal;
+            font-weight: 500;
+            color: var(--accent-gold);
+            text-align: right;
+            font-size: 1.1rem;
+            position: relative;
+            padding-right: 20px;
+        }
+        
+        .quote-author::before {
+            content: '—';
+            margin-right: 8px;
+            color: var(--accent-red);
+        }
+        
+        /* Цитаты с портретами - НОВЫЙ ДИЗАЙН */
+        .quote-with-portrait {
+            display: flex;
+            align-items: flex-start;
+            gap: 35px;
+            margin: 70px 0;
+            background: rgba(15, 15, 15, 0.7);
+            border-radius: 12px;
+            padding: 35px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            border-left: 4px solid var(--accent-gold);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .quote-with-portrait:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+        }
+        
+        .portrait-container {
+            flex-shrink: 0;
+            width: 160px;
+            text-align: center;
+        }
+        
+        .portrait {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--accent-gold);
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.3);
+            margin-bottom: 15px;
+            transition: transform 0.3s ease;
+        }
+        
+        .portrait:hover {
+            transform: scale(1.05);
+        }
+        
+        .portrait-caption {
+            font-size: 1rem;
+            color: var(--accent-gold);
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        
+        .portrait-role {
+            font-size: 0.9rem;
+            color: var(--gray);
+            font-style: italic;
+            text-align: center;
+        }
+        
+        .quote-content {
+            flex: 1;
+            padding: 15px 0 0 0;
+            position: relative;
+            font-style: italic;
+            font-size: 1.3rem;
+            line-height: 1.8;
+            color: var(--text-light);
+        }
+        
+        .quote-content::before {
+            content: '"';
+            font-size: 6rem;
+            color: var(--accent-gold);
+            position: absolute;
+            top: -35px;
+            left: 0;
+            opacity: 0.15;
+            font-family: 'Cormorant Garamond', serif;
+            line-height: 1;
+        }
+        
+        .simple-quote-author {
+            margin-top: 25px;
+            font-style: normal;
+            font-weight: 500;
+            color: var(--accent-gold);
+            font-size: 1.1rem;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .simple-quote-author::before {
+            content: '—';
+            position: absolute;
+            left: 0;
+            color: var(--accent-red);
+        }
+        
+        /* Конец статьи */
+        .conclusion {
+            margin-top: 80px;
+            padding: 40px;
+            text-align: center;
+            border-top: 1px solid var(--gray-dark);
+            border-bottom: 1px solid var(--gray-dark);
+            position: relative;
+        }
+        
+        .conclusion::before {
+            content: '???';
+            font-size: 5rem;
+            color: var(--accent-red);
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0.1;
+            font-family: 'Cormorant Garamond', serif;
+        }
+        
+        .conclusion-text {
+            font-size: 1.5rem;
+            color: var(--accent-gold);
+            margin-bottom: 20px;
+        }
+        
+        /* Блок "Команда" */
+        .team-section {
+            margin: 80px 0;
+            padding: 60px 0;
+            border-top: 1px solid var(--gray-dark);
+            border-bottom: 1px solid var(--gray-dark);
+        }
+        
+        .team-title {
+            font-size: 2.5rem;
+            color: var(--accent-gold);
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+            padding-bottom: 20px;
+        }
+        
+        .team-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 2px;
+            background-color: var(--accent-red);
+        }
+        
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-top: 40px;
+        }
+        
+        .team-member {
+            text-align: center;
+        }
+        
+        .team-photo {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--accent-gold);
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.4);
+            margin: 0 auto 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .team-photo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 35px rgba(212, 175, 55, 0.6);
+        }
+        
+        .team-name {
+            font-size: 1.3rem;
+            color: var(--text-light);
+            font-weight: 500;
+            margin-bottom: 5px;
+            font-family: 'Cormorant Garamond', serif;
+        }
+        
+        .team-role {
+            font-size: 1rem;
+            color: var(--accent-gold);
+            font-style: italic;
+        }
+        
+        .team-description {
+            margin-top: 30px;
+            text-align: center;
+            color: var(--gray);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Подвал */
+        footer {
+            padding: 40px 0;
+            text-align: center;
+            color: var(--gray);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--gray-dark);
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 3rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .section-title {
+                font-size: 2.2rem;
+            }
+            
+            .quote-block, .quote-content {
+                padding: 30px 20px;
+                font-size: 1.1rem;
+            }
+            
+            .quote-block::before, .quote-content::before {
+                font-size: 4.5rem;
+                top: -15px;
+                left: 15px;
+            }
+            
+            .fullscreen-header {
+                padding: 0 20px;
+            }
+            
+            .image-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            /* На мобильных центрируем по-другому */
+            .fullscreen-header::before {
+                background-position: 50% 50%; /* Полностью центрируем на мобильных */
+            }
+            
+            .fullscreen-header::after {
+                background: radial-gradient(
+                    circle at 50% 50%,
+                    transparent 20%,
+                    rgba(0, 0, 0, 0.9) 70%
+                );
+            }
+            
+            /* Адаптация цитат с портретами для мобильных */
+            .quote-with-portrait {
+                flex-direction: column;
+                align-items: center;
+                gap: 25px;
+                padding: 25px;
+            }
+            
+            .portrait-container {
+                width: 140px;
+            }
+            
+            .portrait {
+                width: 140px;
+                height: 140px;
+            }
+            
+            .quote-content {
+                width: 100%;
+            }
+            
+            /* Адаптация списка компаний для мобильных */
+            .company-list li {
+                padding-left: 60px;
+                min-height: 45px;
+            }
+            
+            .company-list li::before {
+                width: 45px;
+                height: 45px;
+                background-size: 35px 35px;
+            }
+            
+            /* Адаптация блока "Команда" для мобильных */
+            .team-title {
+                font-size: 2rem;
+            }
+            
+            .team-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .team-photo {
+                width: 150px;
+                height: 150px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .main-title {
+                font-size: 2.2rem;
+                padding: 0 15px;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+            }
+            
+            .intro-text {
+                font-size: 1.1rem;
+            }
+            
+            .portrait {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .company-list li {
+                padding-left: 50px;
+                min-height: 40px;
+                font-size: 0.95rem;
+            }
+            
+            .company-list li::before {
+                width: 40px;
+                height: 40px;
+                background-size: 30px 30px;
+            }
+            
+            .company-name {
+                font-size: 1rem;
+            }
+            
+            /* Адаптация блока "Команда" для маленьких экранов */
+            .team-title {
+                font-size: 1.8rem;
+            }
+            
+            .team-photo {
+                width: 130px;
+                height: 130px;
+            }
+            
+            .team-name {
+                font-size: 1.2rem;
+            }
+            
+            .quote-block {
+                padding: 25px 15px;
+            }
+            
+            .quote-with-portrait {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Fullscreen заголовок -->
+    <section class="fullscreen-header">
+        <h1 class="main-title">Вы уверены, что хотите выйти?</h1>
+        <p class="subtitle">Разбираемся, в чем феномен квест-индустрии и её популярности в современном мире развлечений</p>
+        <div class="scroll-down">↓</div>
+    </section>
+
+    <!-- Основной контент -->
+    <main class="content">
+        <div class="container">
+            <!-- В чём феномен квест-индустрии? -->
+            <section id="phenomenon" class="section">
+                <h2 class="section-title">В чём феномен квест-индустрии?</h2>
+                
+                <!-- Изображение для первой секции -->
+                <div class="image-container">
+                    <img src="images/атмосфера.JPG" alt="Атмосферная комната квеста с загадочным освещением и антуражем" class="main-image">
+                    <p class="image-caption">Погружение в атмосферу — ключевой элемент квеста, который заставляет забыть о реальности</p>
+                </div>
+                
+                <div class="intro-text">
+                    Портье встретил нас и предупредил, что в отеле происходят паранормальные вещи. Он провёл всех в комнату и захлопнул дверь. Первое время нет света. Его не будет и потом. Но глаза привыкают. Мы идём в темноте, проходя какую-то куклу справа. Уже заворачиваем к следующей комнате. Виднеется стол с ярким шаром. Но меня хватают сзади за руку, и я понимаю, что это была не кукла. Красное, кроваво-черное лицо и дьявольские рога делают движение в мою сторону. Остаётся только бежать...
+                </div>
+            </section>
+
+            <!-- Что такое квесты и почему они популярны? -->
+            <section id="definition" class="section">
+                <h2 class="section-title">Что такое квесты и почему они популярны?</h2>
+                
+                <!-- Сетка изображений для второй секции -->
+                <div class="image-grid">
+                    <img src="images/загадки.jpg" alt="Команда разгадывает головоломку в квесте" class="grid-image">
+                    <img src="images/детский праздник.jpeg" alt="Детский квест с яркими декорациями и праздничной атмосферой" class="grid-image">
+                    <img src="images/VR.jpg" alt="VR-квест с использованием технологий виртуальной реальности" class="grid-image">
+                </div>
+                <p class="image-caption" style="text-align: center; margin-top: -10px;">Разнообразие форматов: от классических головоломок до детских праздников и высокотехнологичных VR-квестов</p>
+                
+                <p class="paragraph">Незаметным образом квест-индустрия проникла в жизнь людей и стала одним из самых интересных способов провести выходной день в компании друзей. Квесты — это интерактивные игры с различными сюжетами: от хорроров, до детективов. Главная цель любого сеанса — решить все головоломки на пути к цели, которая так же везде может быть разной в зависимости от классификации. Где-то — выбраться из комнаты, где-то — найти сокровища, а где-то — разгадать главную загадку, лежащую в основе всей игры.</p>
+                
+                <p class="paragraph">Теперь родители с детьми, подростки и молодые люди ходят на квесты, чтобы весело провести время и зарядиться самыми разными эмоциями, как когда-то посещали парки аттракционов. Но так ли популярен такой досуг в Нижнем Новгороде и может ли они действительно конкурировать за внимание посетителей с более традиционными видами отдыха?</p>
+                
+                <p class="paragraph">Чтобы ответить на эти вопросы мы проанализируем три квест-компании города:</p>
+                
+                <ul class="company-list">
+                    <li>
+                        <span class="company-name">«Пятый угол»</span> — самая крупная компания в регионе и абсолютный лидер индустрии. Точки квестов расположены не только в Нижнем Новгороде, но и в Дзержинске.
+                    </li>
+                    <li>
+                        <span class="company-name">«Level Up»</span> — маленькая и самобытная компания, которой за счёт креатива и оригинального подхода удаётся конкурировать с лидерами индустрии.
+                    </li>
+                    <li>
+                        <span class="company-name">«Горький Quest»</span> — компания со своим взглядом на продукт, который отличается от конкурентов. С каждым из участников проводится серьезная индивидуальная работа и деталь.
+                    </li>
+                </ul>
+            </section>
+
+            <!-- Люди хотят пугаться? -->
+            <section id="horror" class="section">
+                <h2 class="section-title">Люди хотят пугаться?</h2>
+                
+                <!-- Два изображения для блока про хорроры и детские праздники -->
+                <div class="image-grid">
+                    <img src="images/страшный квест.jpg" alt="Хоррор-квест с пугающими декорациями и темной атмосферой" class="grid-image">
+                    <img src="images/детский др.jpg" alt="Детский день рождения в квест-комнате с веселой атмосферой" class="grid-image">
+                </div>
+                <p class="image-caption" style="text-align: center; margin-top: -10px;">Два самых популярных запроса: хоррор-квесты для любителей адреналина и детские дни рождения для семейного отдыха</p>
+                
+                <p class="paragraph">«Пятый угол» преодолел внушительный путь — менее, чем за девять лет существования компания выросла в абсолютного лидера рынка, распространяя свой продукт за границы Нижнего Новгорода. Организация зашла в индустрию в 2016 году и сейчас имеет 17 точек в большинстве районов города. Посетители могут выбрать более, чем из пятидесяти различных программ: страшные, нестрашные, классические, иммерсивные или экшн-игры. К тому же направлены они на группы разного количества людей — можно выбрать для двоих, а можно найти квест и для шестидесяти человек!</p>
+                
+                <p class="paragraph">Ключевая особенность компании не только в масштабе, но и в универсальности — «Пятый угол» направлен на самую разную аудиторию: от детей, до взрослых. В арсенале развлечений есть и VR-комнаты, и организация корпоративов и тимбилдингов, и спокойные квесты для школьников.</p>
+                
+                <!-- Первая цитата Анастасии с портретом - НОВЫЙ ДИЗАЙН -->
+                <div class="quote-with-portrait">
+                    <div class="portrait-container">
+                        <img src="images/настя.jpg" alt="Анастасия" class="portrait">
+                        <div class="portrait-caption">Анастасия</div>
+                        <div class="portrait-role">менеджер по продажам "Пятый угол"</div>
+                    </div>
+                    <div class="quote-content">
+                        «Люди приходят за эмоциями. За тем, чего им не хватает в обычной жизни. Кто-то просит: «Хочу, чтобы прям страшно было», кто-то, наоборот, выбирает квест со сложными загадками, чтобы проверить себя. Это такой маленький вызов, который они сами себе устраивают».
+                    </div>
+                </div>
+                
+                <p class="paragraph">Удивительно, но самые популярные запросы — это два прямо противоположных мероприятия. Первый — хоррор-квесты. Именно благодаря такого типа играм индустрия и прославилась. Люди хотят адреналина и добровольно соглашаются зайти в комнату, где неизбежно будет страшно. <span class="inline-quote">Все эти: «а есть что-нибудь прям жуткое?» звучат каждый день</span>, — дополняет Анастасия.</p>
+                
+                <p class="paragraph">Участники квестов хотят пугаться, поэтому запросов на спокойные, интеллектуальные форматы сейчас стало куда меньше.</p>
+                
+                <p class="paragraph">Второй самый популярный вариант среди клиентов — детские дни рождения. Школьники приходят за эмоциями, весельем и «движухой». А родители за организацией на качественном уровне, где всё под контролем профессионалов. Но есть и подводные камни.</p>
+                
+                <!-- Цитата Анастасии без портрета - НОВЫЙ ДИЗАЙН -->
+                <div class="quote-block">
+                    «Иногда родители не совсем понимают систему письменных согласий на страшные версии и сам формат таких квестов, отсюда и возникают вопросы... В таких ситуациях всегда необходимо чётко проговаривать все уровни контакта в игре. И в случае, когда участник оказывается действительно не готов к происходящему, необходимо всегда быть рядом».                   
+                </div>
+                
+                <p class="paragraph">Особый акцент Настя делает на поддержке игроков от персонала: «Мы всегда остаёмся с клиентом от начала и до конца: встречаем, успокаиваем, подбадриваем, подстраиваемся. Люди ценят, когда их эмоции чувствуют и понимают».</p>
+                
+                <p class="paragraph">Если говорить о проблемах в конкуренции с другими развлечениями, то Настя спокойно говорит: «Да, проблемы есть». В последние годы рынок развлечений особенно расширился — VR-комнаты, компьютерные клубы распространяются всё активнее. У детей и подростков огромное количество вариантов для выбора. «Но квесты всё ещё держат популярность. Людям нужен драйв, эмоции, живое участие. И мы даём им это», — заключает Настя.</p>
+            </section>
+
+            <!-- Как вернуть посетителя? -->
+            <section id="return-visitor" class="section">
+                <h2 class="section-title">Как вернуть посетителя?</h2>
+                
+                <div class="image-container">
+                    <img src="images/мерч.jpg" alt="Фирменный мерч квест-комнаты: футболки, кружки, игрушки" class="main-image">
+                    <p class="image-caption">Фирменный мерч — креативный подход к созданию лояльной аудитории и возврату посетителей</p>
+                </div>
+                
+                <p class="paragraph">Квест-компания «Level Up» открылась в 2024 году. Очевидно, что она куда меньше — в городе лишь одна локация, да и выбор для гостей куда скромнее. Посетителю здесь могу предложить только пять программ.</p>
+                
+                <p class="paragraph">Однако креатив — тот компонент, благодаря которому организация держит достойный уровень и имеет постоянных клиентов, что очень трудно в индустрии развлечений. Чтобы разобраться, как выдерживает конкуренцию небольшая команда против огромных компаний, мы поговорили с одним из создателей «Level Up».</p>
+                
+                <!-- Первая цитата Александра с портретом - НОВЫЙ ДИЗАЙН -->
+                <div class="quote-with-portrait">
+                    <div class="portrait-container">
+                        <img src="images/Саша.jpg" alt="Александр" class="portrait">
+                        <div class="portrait-caption">Александр</div>
+                        <div class="portrait-role">сооснователь квест-компании "Level up"</div>
+                    </div>
+                    <div class="quote-content">
+                        «Первое, что мы сделали, когда придумали основную концепцию, — начали прорабатывать возможные пути «возврата» клиента. Проблема бизнеса квестов в том, что здесь одна команда — один квест. Вероятность того, что группа людей, которая пришла, вернётся обратно — практически минимальна. Это не кафе, где человек вернётся через день, потому что ему понравилась кухня или антураж. Поэтому мы разработали наш фирменный мерч. Квест «Пять ночей Фредди» по популярной компьютерной игре — это обширный материал, с которым можно было работать. Мы сделали кепки, футболки, кружки и плюшевые игрушки, которые сначала дарили после квестов, а затем стали продавать».
+                    </div>
+                </div>
+                
+                <p class="paragraph">Такой подход сумел создать аудиторию, которая начала возвращаться. Пусть не через неделю, но люди стали предпочитать квесты «Level Up», более масштабным компаниям. С помощью этого организация приобрела собственную аудиторию, и теперь база посетителей только растёт. Команда разрабатывает антураж до мелочей — ребята закупают специальную мебель для определённых квестов и стараются максимально погрузить игроков в атмосферу сюжета.</p>
+            </section>
+
+            <!-- Как можно выделяться в квест-индустрии? -->
+<section id="stand-out" class="section">
+    <h2 class="section-title">Как можно выделяться в квест-индустрии?</h2>
+    
+    <!-- Три изображения для блока про Горький Quest -->
+    <div class="image-grid">
+        <img src="images/горький квест 1.JPG" alt="Иммерсивный квест от компании Горький Quest с детализированным антуражем" class="grid-image">
+        <img src="images/горький квест 2.JPG" alt="Профессиональный актёр в образе взаимодействует с игроками" class="grid-image">
+        <img src="images/горький квест 3.JPG" alt="Атмосферная локация квеста с тематическим оформлением" class="grid-image">
+    </div>
+    <p class="image-caption" style="text-align: center; margin-top: -10px;">Иммерсивные квесты «Горький Quest»: детализированный антураж, профессиональные актёры и полное погружение в сюжет</p>
+    
+    <p class="paragraph">Главная «фишка» компании «Горький Quest» — иммерсивность. Это эффект полного погружения человека в искусственно созданную среду. Другими словами, игроки в квесте не просто участники — они создатели сюжета, которые развивают ход действия так же, как и актёры. Не нужно путать с интерактивностью, потому что процесс намного сложнее, чем обычное взаимодействие с человеком и предоставление ему выбора.</p>
+    
+    <!-- Первая цитата Кирилла с портретом - НОВЫЙ ДИЗАЙН -->
+    <div class="quote-with-portrait">
+        <div class="portrait-container">
+            <img src="images/Кира.jpg" alt="Кирилл" class="portrait">
+            <div class="portrait-caption">Кирилл</div>
+            <div class="portrait-role">сооснователь компании "Горький Quest"</div>
+        </div>
+        <div class="quote-content">
+            «Пусть это прозвучит грубовато, но люди очень любят, когда мир крутится вокруг них. В фильмах мы наблюдаем, как правило, за одним главным героем, в видеоиграх мы сами замещаем главного героя. И это нормально, что мы тоже хотим быть такими. Но в жизни так получается не всегда. А в квестах получится. Поэтому мы детально прорабатываем роли людей во всех сюжетах. Разговариваем персонально с человеком до игры, где объясняем все нюансы его персонажа. А по ходу самого действия каждый может выбрать концовку, которая придётся ему по душе. У нас на каждую программу есть разное количество версий концовок, и это наша оригинальная задумка, которой в Нижнем Новгороде не было ни у кого».            
+        </div>
+    </div>
+    
+    <p class="paragraph">В квесте можно выделить три ключевых фактора: антураж, звуки и актёр. Каждый из них должен работать не хуже среднего. «Горький Quest» особенный акцент делает на антураж. Человек моментально погружается в атмосферу, когда актёр его встречает, провожает в комнату, ведёт сам сюжет, и прощается в конце квеста, находясь постоянно в образе. Очень важно прямое взаимодействие с игроком.</p>
+    
+    <p class="paragraph">Например, сюжет «Астрала» (репортаж из неё вы читали в начале текста) во многом сосредоточен на индивидуальном контакта с человеком. В квесте может принимать участие до восьми человек — к каждому герою применяется свой подход и отдельная работа со стороны персонала квеста.</p>
+    
+    <!-- Цитата Кирилла без портрета - НОВЫЙ ДИЗАЙН -->
+    <div class="quote-block">
+        «Иммерсивность заключается не в том, что актёр просто разговаривает с участниками во время игры. А в том, что параллельно с этим он ведёт их по сюжету. Будучи актёром, я мог просто болтать, находясь в образе, но при этом активно развивал сам процесс, давал подсказки и спрашивал мнение игроков по сюжету. Я однажды пошёл на квест сам, как участник. Так меня там девочка «на прогиб» швырнула. Было страшно, но всё было безопасно — тоже иммерсивность».       
+    </div>
+    
+    <p class="paragraph">Молодой человек проработал в квест-индустрии семь лет. Он основал собственную компанию, работал там актёром. Но совсем недавно принял решение завершить свой путь в этой сфере. Кирилл продал компанию и отошёл от дел. Причина простая — выгорание. За столько времени парень вложил в это дело не только эмоциональный ресурс, но и физический.</p>
+    
+    <p class="paragraph">Каждую игру необходимо было проживать через себя и это действительно нелегко. К тому же повторять так из раза в раз. Он возвращался домой, а чувств никаких уже не оставалось, потому что оставлял всё в тех комнатах с десятками игроков за день: «Творческое выгорание на квестах крайне сильно. И со мной это приключилось. Никогда не хотел фальши, не хотелось подводить кого-то. Да и ударить в грязь лицом — не самое лучше чувство для собственного ощущения. Поэтому всегда выкладывался на максимум и в конце концов эмоций на себя уже не хватало».</p>
+    
+    <!-- Новое изображение после абзаца -->
+    <div class="image-container">
+        <img src="images/кира устал.JPG" alt="Уставший актёр после проведения квеста, эмоциональное выгорание" class="main-image">
+        <p class="image-caption">Эмоциональное истощение — частая цена за полное погружение в роль</p>
+    </div>
+    
+    <p class="paragraph">По словам Кирилла, затем наступил второй момент, когда он осознал, что у него не хватает сил. Парень действительно загубил собственное здоровье, посвятив всего себя индустрии развлечений. В возрасте 16-20 лет актёры всегда энергичные и более выносливые. Но со временем он понял, что уже не справляется. В динамических квестах, где нужно бегать за игроками, прыгать по локации, ресурса уже не хватало.</p>
+    
+    <p class="paragraph">Раньше мог проводить по семь таких игр подряд, а сейчас на третьей уже становилось плохо. К тому же у Кирилла сел голос. Он порвал узлы на связках, из-за огромного напряжения. Не всегда ведь в квестах актёры разговаривают спокойно, иногда и кричать нужно, и голос менять. Всё это оказывало огромное влияние на организм. В какой-то момент молодой человек понял, что пора заканчивать.</p>
+    
+    <p class="paragraph">Да и вопрос финансов всегда в индустрии развлечений стоит особенно остро. А в квестах, по словам Кирилла, все ребята работали практически за идею, не получая особенно прибыли. Все проблемы сложились воедино, и он принял решение продать компанию.</p>
+    
+    <!-- Последняя цитата Кирилла без портрета - НОВЫЙ ДИЗАЙН -->
+    <div class="quote-block">
+        «А знаете, я бы ещё открыл парочку квестов. У меня до сист пор есть в черновиках несколько концепций, которые реально могли бы «взорвать мозг» игрокам. Очень крутые иммерсивные элементы, рассчитанные не на жёсткий контакт или испуг, а на виртуальном контенте, который точно двинет индустрию вперёд. Поэтому ждите, возможно, ещё вернусь».        
+    </div>
+</section>
+            
+            <!-- Заключение -->
+            <div class="conclusion">
+                <p class="conclusion-text">Квест-индустрия продолжает развиваться, предлагая всё новые форматы и способы погружения в альтернативные реальности.</p>
+                <p>Вы всё ещё уверены, что хотите выйти?</p>                          
+            
+            <!-- Команда -->
+            <section class="team-section">
+                <h2 class="team-title">Команда проекта</h2>
+                
+                <div class="team-grid">
+                    <div class="team-member">
+                        <img src="images/Артём Кузнецов.jpg" alt="Артём Кузнецов" class="team-photo">
+                        <h3 class="team-name">Артём Кузнецов</h3>
+                        <p class="team-role">Автор лонгрида</p>
+                    </div>
+                    
+                    <div class="team-member">
+                        <img src="images/Никита Хренов.jpg" alt="Никита Хренов" class="team-photo">
+                        <h3 class="team-name">Никита Хренов</h3>
+                        <p class="team-role">Верстальщик и дизайнер</p>
+            </section>
+    </main>
+
+    <!-- Подвал -->
+    <footer>
+        <div class="container">
+            <p>© 2023 Исследование феномена квест-индустрии. Все права защищены.</p>
+            <p>Текст основан на реальных интервью с представителями квест-компаний Нижнего Новгорода.</p>
+            <p>Иллюстрации: предоставлены компаниями из личных архивов</p>
+        </div>
+    </footer>
+
+    <script>
+        // Анимация появления секций при прокрутке
+        const sections = document.querySelectorAll('.section');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+        
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+        
+        // Анимация для блока "Команда"
+        const teamSection = document.querySelector('.team-section');
+        const teamObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+        
+        if (teamSection) {
+            teamSection.style.opacity = '0';
+            teamSection.style.transform = 'translateY(30px)';
+            teamSection.style.transition = 'opacity 0.8s, transform 0.8s';
+            teamObserver.observe(teamSection);
+        }
+        
+        // Плавная прокрутка к секциям при клике на стрелку
+        document.querySelector('.scroll-down').addEventListener('click', () => {
+            document.querySelector('#phenomenon').scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+        
+        // Эффект параллакса для заголовка
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelector('.fullscreen-header');
+            const rate = scrolled * -0.5;
+            
+            if (parallax && scrolled < parallax.offsetHeight) {
+                parallax.style.transform = `translate3d(0px, ${rate}px, 0px)`;
+            }
+        });
+        
+        // Добавляем мигающий эффект заголовку
+        const title = document.querySelector('.main-title');
+        let flickerCount = 0;
+        
+        const randomFlicker = () => {
+            if (flickerCount < 10) { // Ограничиваем количество миганий
+                const randomTime = Math.random() * 5000 + 2000;
+                setTimeout(() => {
+                    title.style.animation = 'none';
+                    setTimeout(() => {
+                        title.style.animation = 'flicker 3s infinite alternate';
+                        flickerCount++;
+                        randomFlicker();
+                    }, 100);
+                }, randomTime);
+            }
+        };
+        
+        // Запускаем случайное мигание после загрузки
+        window.addEventListener('load', () => {
+            setTimeout(randomFlicker, 3000);
+        });
+        
+        // Динамическая настройка позиции фона для центрирования лица
+        document.addEventListener('DOMContentLoaded', function() {
+            const header = document.querySelector('.fullscreen-header');
+            
+            // Настройка позиции лица на обложке
+            const facePosition = {
+                x: '70%',
+                y: '50%'
+            };
+            
+            // Настройка для мобильных
+            if (window.innerWidth <= 768) {
+                facePosition.x = '50%';
+                facePosition.y = '50%';
+            }
+            
+            // Применяем настройки
+            const beforeStyle = `linear-gradient(rgba(10, 10, 10, 0.75), rgba(5, 5, 5, 0.7)), url('images/обложка.JPG') no-repeat ${facePosition.x} ${facePosition.y} / cover`;
+            const afterStyle = `radial-gradient(circle at ${facePosition.x} ${facePosition.y}, transparent 30%, rgba(0, 0, 0, 0.8) 70%)`;
+            
+            header.style.setProperty('--face-x', facePosition.x);
+            header.style.setProperty('--face-y', facePosition.y);
+        });
+    </script>
+</body>
+</html>
